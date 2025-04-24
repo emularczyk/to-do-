@@ -2,18 +2,37 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="?attr/actionBarSize"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:layout_marginTop="?attr/actionBarSize">
+    android:padding="16dp">
 
+    <!-- 🔵 Nagłówek z użytkownikiem -->
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:gravity="center_vertical">-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/userText"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Nie zalogowano"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textSize="16sp" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/loginButton"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Zaloguj się" />-->
+<!--    </LinearLayout>-->
+
+    <!-- 🔸 Pozostała część layoutu -->
     <EditText
         android:id="@+id/inputTodo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autofillHints=""
-        android:enabled="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
         android:hint="@string/enter_todo_item" />
 
     <Button
@@ -21,7 +40,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:enabled="true"
         android:text="@string/add_todo" />
 
     <Button
@@ -36,9 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="468dp"
         android:layout_marginTop="16dp"
-        android:layout_weight="1">
-
-    </androidx.recyclerview.widget.RecyclerView>
+        android:layout_weight="1" />
 
     <Switch
         android:id="@+id/themeToggleBtn"

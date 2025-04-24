@@ -8,4 +8,17 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="light_mode">Light Mode</string>
     <string name="ok">OK</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="new_directory">New directory</string>
+    <string name="directory_name">Directory name</string>
+    <string name="choose_directory">Choose directory</string>
+    <string name="add_directory">New directory</string>
+    <string name="directory_hint">Directory name</string>
+    <string name="manage_directories">Manage directories</string>
+    <string name="directories_management">Directories management</string>
+    <string name="edit_directory">Edit directory</string>
+    <string name="delete_directory">Delete directory</string>
+    <string name="delete_directory_hint">Are you sure you want to delete this directory?</string>
+    <string name="notes_count">Notes: %d</string>
 </resources>

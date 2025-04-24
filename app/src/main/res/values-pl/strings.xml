@@ -8,4 +8,17 @@
     <string name="dark_mode">Tryb ciemny</string>
     <string name="light_mode">Tryb jasny</string>
     <string name="ok">OK</string>
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
+    <string name="new_directory">Nowy katalog</string>
+    <string name="directory_name">Nazwa katalogu</string>
+    <string name="choose_directory">Wybierz katalog</string>
+    <string name="add_directory">Nowy katalog</string>
+    <string name="directory_hint">Nazwa katalogu</string>
+    <string name="manage_directories">Zarządzaj katalogami</string>
+    <string name="directories_management">Zarządzanie katalogami</string>
+    <string name="edit_directory">Edytuj katalog</string>
+    <string name="delete_directory">Usuń katalog</string>
+    <string name="delete_directory_hint">Czy na pewno chcesz usunąć ten katalog?</string>
+    <string name="notes_count">Notatki: %d</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.example.todo;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
@@ -15,10 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrayList<String> todoList;
+    private ArrayList<Directory> directories;
     private TodoAdapter todoAdapter;
     private SharedPreferences sharedPreferences;
-    private static final String TODOS_KEY = "todos";
+    private static final String DIRECTORIES_KEY = "directories";
+    private static final int DIRECTORY_MANAGEMENT_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +35,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        directories = new ArrayList<>();
         if (savedInstanceState != null) {
-            todoList = savedInstanceState.getStringArrayList(TODOS_KEY);
-        } else {
-            todoList = new ArrayList<>();
+            directories = savedInstanceState.getParcelableArrayList(DIRECTORIES_KEY);
+        }
+        if (directories == null || directories.isEmpty()) {
+            directories = new ArrayList<>();
+            directories.add(new Directory("Główny"));
         }
 
         initializeViews();
@@ -45,19 +51,27 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         EditText inputTodo = findViewById(R.id.inputTodo);
         Button addButton = findViewById(R.id.addButton);
+        Button manageDirButton = findViewById(R.id.manageDirButton);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch themeToggleBtn = findViewById(R.id.themeToggleBtn);
 
-        todoAdapter = new TodoAdapter(todoList, this);
+        ArrayList<String> allNotes = getAllNotes();
+        todoAdapter = new TodoAdapter(allNotes, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(todoAdapter);
 
         addButton.setOnClickListener(v -> {
             String todoText = inputTodo.getText().toString().trim();
             if (!todoText.isEmpty()) {
-                todoList.add(todoText);
-                todoAdapter.notifyItemInserted(todoList.size() - 1);
+                directories.get(0).addNote(todoText);
+                updateNotesList();
                 inputTodo.setText("");
             }
+        });
+
+        manageDirButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, DirectoryManagementActivity.class);
+            intent.putParcelableArrayListExtra("directories", new ArrayList<>(directories));
+            startActivityForResult(intent, DIRECTORY_MANAGEMENT_REQUEST);
         });
 
         boolean isNightMode = sharedPreferences.getBoolean("night_mode", false);
@@ -79,9 +93,36 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private ArrayList<String> getAllNotes() {
+        ArrayList<String> allNotes = new ArrayList<>();
+        for (Directory dir : directories) {
+            allNotes.addAll(dir.getNotes());
+        }
+        return allNotes;
+    }
+
+    private void updateNotesList() {
+        ArrayList<String> allNotes = getAllNotes();
+        todoAdapter = new TodoAdapter(allNotes, this);
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setAdapter(todoAdapter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == DIRECTORY_MANAGEMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            ArrayList<Directory> updatedDirectories = data.getParcelableArrayListExtra("directories");
+            if (updatedDirectories != null) {
+                directories = updatedDirectories;
+                updateNotesList();
+            }
+        }
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putStringArrayList(TODOS_KEY, todoList);
+        outState.putParcelableArrayList(DIRECTORIES_KEY, directories);
     }
 }

@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         boolean isNightMode = sharedPreferences.getBoolean("night_mode", false);
-        themeToggleBtn.setText(isNightMode ? "Light Mode" : "Dark Mode");
+        themeToggleBtn.setText(isNightMode ? R.string.light_mode : R.string.dark_mode);
         themeToggleBtn.setChecked(isNightMode);
 
         themeToggleBtn.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putBoolean("night_mode", isChecked);
             editor.apply();
 
-            themeToggleBtn.setText(isChecked ? "Light Mode" : "Dark Mode");
+            themeToggleBtn.setText(isChecked ? R.string.light_mode : R.string.dark_mode);
 
             AppCompatDelegate.setDefaultNightMode(
                     isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO

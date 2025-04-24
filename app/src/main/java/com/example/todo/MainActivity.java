@@ -1,5 +1,7 @@
 package com.example.todo;
 
+import static com.example.todo.DirectoryAdapter.DIRECTORY_NOTES_REQUEST;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -111,11 +113,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == DIRECTORY_MANAGEMENT_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            ArrayList<Directory> updatedDirectories = data.getParcelableArrayListExtra("directories");
-            if (updatedDirectories != null) {
-                directories = updatedDirectories;
-                updateNotesList();
+
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            switch (requestCode) {
+                case DIRECTORY_NOTES_REQUEST:
+                    int position = data.getIntExtra("directoryPosition", -1);
+                    ArrayList<String> updatedNotes = data.getStringArrayListExtra("notes");
+                    if (position != -1 && updatedNotes != null) {
+                        directories.get(position).getNotes().clear();
+                        directories.get(position).getNotes().addAll(updatedNotes);
+                        updateNotesList();
+                    }
+                    break;
+
+                case DIRECTORY_MANAGEMENT_REQUEST:
+                    ArrayList<Directory> updatedDirectories = data.getParcelableArrayListExtra("directories");
+                    if (updatedDirectories != null) {
+                        directories.clear();
+                        directories.addAll(updatedDirectories);
+                        updateNotesList();
+                    }
+                    break;
             }
         }
     }

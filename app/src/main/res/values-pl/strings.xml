@@ -21,4 +21,7 @@
     <string name="delete_directory">Usuń katalog</string>
     <string name="delete_directory_hint">Czy na pewno chcesz usunąć ten katalog?</string>
     <string name="notes_count">Notatki: %d</string>
+    <string name="directory_notes">Notatki</string>
+    <string name="add_note_hint">Dodaj notatkę</string>
+    <string name="add">Dodaj</string>
 </resources>

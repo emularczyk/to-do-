@@ -8,13 +8,15 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
+import android.app.Activity;
+import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
 public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.DirectoryViewHolder> {
+    public static final int DIRECTORY_NOTES_REQUEST = 2;
     private final ArrayList<Directory> directories;
     private final Context context;
 
@@ -36,6 +38,14 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.Dire
         Directory directory = directories.get(position);
         holder.directoryName.setText(directory.getName());
         holder.notesCount.setText(context.getString(R.string.notes_count, directory.getNotes().size()));
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DirectoryNotesActivity.class);
+            intent.putExtra("directoryPosition", position);
+            intent.putExtra("directoryName", directory.getName());
+            intent.putStringArrayListExtra("notes", directory.getNotes());
+            ((Activity) context).startActivityForResult(intent, DIRECTORY_NOTES_REQUEST);
+        });
 
         holder.editButton.setOnClickListener(v -> showEditDialog(directory, position));
         holder.deleteButton.setOnClickListener(v -> showDeleteDialog(position));

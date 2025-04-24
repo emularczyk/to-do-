@@ -26,6 +26,10 @@
             android:name=".DirectoryManagementActivity"
             android:label="@string/directories_management"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".DirectoryNotesActivity"
+            android:label="@string/directory_notes"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

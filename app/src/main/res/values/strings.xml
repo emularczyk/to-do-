@@ -21,4 +21,7 @@
     <string name="delete_directory">Delete directory</string>
     <string name="delete_directory_hint">Are you sure you want to delete this directory?</string>
     <string name="notes_count">Notes: %d</string>
+    <string name="directory_notes">Notes</string>
+    <string name="add_note_hint">Add note</string>
+    <string name="add">Add</string>
 </resources>

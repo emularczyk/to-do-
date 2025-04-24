@@ -2,7 +2,10 @@
 <resources>
     <string name="app_name">ToDo</string>
     <string name="enter_todo_item">Wpisz notatkę</string>
+    <string name="edit_note">Edytuj notatkę</string>
+    <string name="cancel">Anuluj</string>
     <string name="add_todo">Dodaj</string>
     <string name="dark_mode">Tryb ciemny</string>
     <string name="light_mode">Tryb jasny</string>
+    <string name="ok">OK</string>
 </resources>

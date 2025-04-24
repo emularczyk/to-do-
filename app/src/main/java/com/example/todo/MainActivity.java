@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         Button addButton = findViewById(R.id.addButton);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch themeToggleBtn = findViewById(R.id.themeToggleBtn);
 
-        todoAdapter = new TodoAdapter(todoList);
+        todoAdapter = new TodoAdapter(todoList, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(todoAdapter);
 

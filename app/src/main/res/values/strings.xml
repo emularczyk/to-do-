@@ -1,7 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ToDo</string>
     <string name="enter_todo_item">Enter TODO item</string>
+    <string name="edit_note">Edit note</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_todo">Add TODO</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="light_mode">Light Mode</string>
-    <string name="add_todo">Add TODO</string>
+    <string name="ok">OK</string>
 </resources>

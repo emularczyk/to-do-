@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> todoList;
     private TodoAdapter todoAdapter;
     private SharedPreferences sharedPreferences;
+    private static final String TODOS_KEY = "todos";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,11 +32,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (savedInstanceState != null) {
+            todoList = savedInstanceState.getStringArrayList(TODOS_KEY);
+        } else {
+            todoList = new ArrayList<>();
+        }
+
         initializeViews();
     }
 
     private void initializeViews() {
-        todoList = new ArrayList<>();
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         EditText inputTodo = findViewById(R.id.inputTodo);
         Button addButton = findViewById(R.id.addButton);
@@ -71,5 +77,11 @@ public class MainActivity extends AppCompatActivity {
 
             recreate();
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putStringArrayList(TODOS_KEY, todoList);
     }
 }

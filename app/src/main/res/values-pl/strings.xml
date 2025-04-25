@@ -15,6 +15,7 @@
     <string name="choose_directory">Wybierz katalog</string>
     <string name="add_directory">Nowy katalog</string>
     <string name="directory_hint">Nazwa katalogu</string>
+    <string name="main_directory">Główny</string>
     <string name="manage_directories">Zarządzaj katalogami</string>
     <string name="directories_management">Zarządzanie katalogami</string>
     <string name="edit_directory">Edytuj katalog</string>
@@ -24,4 +25,7 @@
     <string name="directory_notes">Notatki</string>
     <string name="add_note_hint">Dodaj notatkę</string>
     <string name="add">Dodaj</string>
+    <string name="take_photo">Zrób zdjęcie</string>
+    <string name="camera_not_found">Nie znaleziono aplikacji aparatu</string>
+    <string name="camera_no_permission">Aplikacja potrzebuje dostępu do aparatu aby robić zdjęcia</string>
 </resources>

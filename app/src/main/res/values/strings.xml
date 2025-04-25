@@ -15,6 +15,7 @@
     <string name="choose_directory">Choose directory</string>
     <string name="add_directory">New directory</string>
     <string name="directory_hint">Directory name</string>
+    <string name="main_directory">Main</string>
     <string name="manage_directories">Manage directories</string>
     <string name="directories_management">Directories management</string>
     <string name="edit_directory">Edit directory</string>
@@ -24,4 +25,7 @@
     <string name="directory_notes">Notes</string>
     <string name="add_note_hint">Add note</string>
     <string name="add">Add</string>
+    <string name="take_photo">Take photo</string>
+    <string name="camera_not_found">Could not find camera</string>
+    <string name="camera_no_permission">App needs permission to access camera</string>
 </resources>

@@ -17,10 +17,6 @@
             android:exported="true"
             android:configChanges="uiMode"
             android:theme="@style/Theme.ToDo">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".DirectoryManagementActivity"
@@ -30,6 +26,14 @@
             android:name=".DirectoryNotesActivity"
             android:label="@string/directory_notes"
             android:parentActivityName=".MainActivity" />
+        <activity android:name=".LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".RegisterActivity" />
     </application>
 
 </manifest>

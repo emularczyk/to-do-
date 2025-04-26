@@ -22,10 +22,6 @@
             android:configChanges="uiMode"
             android:theme="@style/Theme.ToDo">
         </activity>
-        <activity
-            android:name=".DirectoryNotesActivity"
-            android:label="@string/directory_notes"
-            android:parentActivityName=".MainActivity" />
         <activity android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>

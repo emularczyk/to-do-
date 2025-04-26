@@ -55,50 +55,6 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(this, "Logowanie nieudane:\n" + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-//    private void resetPassword() {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        builder.setTitle("Resetowanie hasła");
-//
-//        final EditText emailInputField = new EditText(this);
-//        emailInputField.setHint("Podaj email");
-//        builder.setView(emailInputField);
-//
-//        builder.setPositiveButton("Wyślij", (dialog, which) -> {
-//            String email = emailInputField.getText().toString().trim();
-//            if (email.isEmpty()) {
-//                Toast.makeText(this, "Email nie może być pusty", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//
-//            // Use Firebase method to check for existing email
-//            mAuth.fetchSignInMethodsForEmail(email)
-//                    .addOnCompleteListener(task -> {
-//                        if (task.isSuccessful()) {
-//                            // Check if the email exists in the system
-//                            List<String> signInMethods = task.getResult().getSignInMethods();
-//                            if (signInMethods != null && !signInMethods.isEmpty()) {
-//                                // Email exists, proceed to send reset email
-//                                mAuth.sendPasswordResetEmail(email)
-//                                        .addOnSuccessListener(aVoid ->
-//                                                Toast.makeText(this, "Email do resetu hasła został wysłany", Toast.LENGTH_SHORT).show())
-//                                        .addOnFailureListener(e ->
-//                                                Toast.makeText(this, "Błąd: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-//                            } else {
-//                                // Email does not exist in the database
-//                                Toast.makeText(this, "Nie ma konta z takim emailem", Toast.LENGTH_SHORT).show();
-//                            }
-//                        } else {
-//                            // Something went wrong with fetching sign-in methods
-//                            Toast.makeText(this, "Błąd podczas sprawdzania emaila: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-//                        }
-//                    });
-//        });
-//
-//        builder.setNegativeButton("Anuluj", (dialog, which) -> dialog.dismiss());
-//        builder.show();
-//    }
-
-    //jeżeli emaila nie ma w bazie, funkcja nadal wysyła maila, do naprawy?
     private void resetPassword() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -117,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
 
             mAuth.sendPasswordResetEmail(email)
                     .addOnSuccessListener(aVoid ->
-                            Toast.makeText(this, "Email do resetu hasła został wysłany", Toast.LENGTH_SHORT).show())
+                            Toast.makeText(this, "Jeżeli użytkownik istnieje mail do resetu hasła został wysłany.", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e ->
                             Toast.makeText(this, "Błąd: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         });

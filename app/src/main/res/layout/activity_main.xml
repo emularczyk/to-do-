@@ -2,73 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="?attr/actionBarSize"
     android:orientation="vertical"
-    android:padding="16dp">
-
-    <!-- 🔵 Nagłówek z użytkownikiem -->
-<!--    <LinearLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:orientation="horizontal"-->
-<!--        android:gravity="center_vertical">-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/userText"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Nie zalogowano"-->
-<!--            android:textStyle="bold"-->
-<!--            android:textSize="16sp" />-->
-
-<!--        <Button-->
-<!--            android:id="@+id/loginButton"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Zaloguj się" />-->
-<!--    </LinearLayout>-->
-
-    <!-- 🔸 Pozostała część layoutu -->
-    <EditText
-        android:id="@+id/inputTodo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/enter_todo_item" />
+    android:padding="16dp"
+    android:layout_marginTop="?attr/actionBarSize">
 
     <Button
-        android:id="@+id/addButton"
+        android:id="@+id/addDirectoryButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/add_todo" />
-
-    <Button
-        android:id="@+id/manageDirButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="@string/manage_directories" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/cameraButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/take_photo"
-        android:src="@android:drawable/ic_menu_camera" />
+        android:text="@string/new_directory"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/directoriesRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="468dp"
-        android:layout_marginTop="16dp"
-        android:layout_weight="1" />
-
-    <Switch
-        android:id="@+id/themeToggleBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/dark_mode" />
-
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp" />
 </LinearLayout>

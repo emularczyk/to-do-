@@ -40,7 +40,7 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.Dire
         holder.notesCount.setText(context.getString(R.string.notes_count, directory.getNotes().size()));
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, DirectoryNotesActivity.class);
+            Intent intent = new Intent(context, AddTodosActivity.class);
             intent.putExtra("directoryPosition", position);
             intent.putExtra("directoryName", directory.getName());
             intent.putStringArrayListExtra("notes", directory.getNotes());

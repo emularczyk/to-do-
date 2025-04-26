@@ -29,4 +29,14 @@
     <string name="camera_not_found">Nie znaleziono aplikacji aparatu</string>
     <string name="camera_no_permission">Aplikacja potrzebuje dostępu do aparatu aby robić zdjęcia</string>
     <string name="logout">Wyloguj</string>
+    <string name="todo">TODO++</string>
+    <string name="e_mail">E-mail</string>
+    <string name="pass">Hasło</string>
+    <string name="login">Zaloguj się</string>
+    <string name="no_account_popup">Nie masz konta? Zarejestruj się</string>
+    <string name="forgot_pass_popup">Nie pamiętasz hasła?</string>
+    <string name="register">Rejestracja</string>
+    <string name="username">Nazwa użytkownika</string>
+    <string name="register_action">Zarejestruj się</string>
+    <string name="have_account_login_popup">Masz już konto? Zaloguj się</string>
 </resources>

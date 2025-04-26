@@ -29,4 +29,14 @@
     <string name="camera_not_found">Could not find camera</string>
     <string name="camera_no_permission">App needs permission to access camera</string>
     <string name="logout">Logout</string>
+    <string name="todo">TODO++</string>
+    <string name="e_mail">E-mail</string>
+    <string name="pass">Password</string>
+    <string name="login">Log in</string>
+    <string name="no_account_popup">Have account? Register</string>
+    <string name="forgot_pass_popup">Forgot password?</string>
+    <string name="register">Register</string>
+    <string name="username">Username</string>
+    <string name="register_action">Register</string>
+    <string name="have_account_login_popup">Have account? Log in</string>
 </resources>

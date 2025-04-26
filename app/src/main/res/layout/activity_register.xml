@@ -11,7 +11,7 @@
             android:id="@+id/appTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TODO++"
+            android:text="@string/todo"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginBottom="32dp" />
@@ -20,7 +20,7 @@
             android:id="@+id/registerTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rejestracja"
+            android:text="@string/register"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginBottom="32dp" />
@@ -30,14 +30,14 @@
             android:id="@+id/registerUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nazwa użytkownika"
+            android:hint="@string/username"
             android:layout_marginBottom="16dp" />
 
         <EditText
             android:id="@+id/registerEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
+            android:hint="@string/e_mail"
             android:inputType="textEmailAddress"
             android:layout_marginBottom="16dp" />
 
@@ -45,7 +45,7 @@
             android:id="@+id/registerPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Hasło"
+            android:hint="@string/pass"
             android:inputType="textPassword"
             android:layout_marginBottom="24dp" />
 
@@ -53,13 +53,13 @@
             android:id="@+id/registerButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Zarejestruj się" />
+            android:text="@string/register_action" />
 
         <TextView
             android:id="@+id/loginRedirect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Masz już konto? Zaloguj się"
+            android:text="@string/have_account_login_popup"
             android:textColor="@color/purple_700"
             android:layout_marginTop="16dp" />
     </LinearLayout>

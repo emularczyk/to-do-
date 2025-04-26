@@ -39,4 +39,16 @@
     <string name="username">Username</string>
     <string name="register_action">Register</string>
     <string name="have_account_login_popup">Have account? Log in</string>
+    <string name="enter_login_and_password">Enter email and password</string>
+    <string name="login_failed">Logging failed:\n</string>
+    <string name="password_reset">Reset password</string>
+    <string name="enter_email">Enter email</string>
+    <string name="send">Send</string>
+    <string name="email_can_not_be_empty">Email cannot be empty</string>
+    <string name="error">"Error: "</string>
+    <string name="decline">Decline</string>
+    <string name="reset_password_mail_send">If the user exist, the mail to reset the password is send.</string>
+    <string name="fill_all_fields">Fill all fields</string>
+    <string name="registration_complete">Registration complete</string>
+    <string name="account_with_that_email_exist">Account with that mail already exist</string>
 </resources>

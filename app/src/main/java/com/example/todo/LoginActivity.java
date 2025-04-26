@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         String pass = passwordInput.getText().toString().trim();
 
         if (email.isEmpty() || pass.isEmpty()) {
-            Toast.makeText(this, "Wprowadź email i hasło", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.enter_login_and_password, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -52,33 +52,33 @@ public class LoginActivity extends AppCompatActivity {
                     finish();
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Logowanie nieudane:\n" + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        Toast.makeText(this, getString(R.string.login_failed) + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void resetPassword() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Resetowanie hasła");
+        builder.setTitle(R.string.password_reset);
 
         final EditText emailInputField = new EditText(this);
-        emailInputField.setHint("Podaj email");
+        emailInputField.setHint(R.string.enter_email);
         builder.setView(emailInputField);
 
-        builder.setPositiveButton("Wyślij", (dialog, which) -> {
+        builder.setPositiveButton(R.string.send, (dialog, which) -> {
             String email = emailInputField.getText().toString().trim();
             if (email.isEmpty()) {
-                Toast.makeText(this, "Email nie może być pusty", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.email_can_not_be_empty, Toast.LENGTH_SHORT).show();
                 return;
             }
 
             mAuth.sendPasswordResetEmail(email)
                     .addOnSuccessListener(aVoid ->
-                            Toast.makeText(this, "Jeżeli użytkownik istnieje mail do resetu hasła został wysłany.", Toast.LENGTH_SHORT).show())
+                            Toast.makeText(this, R.string.reset_password_mail_send, Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e ->
-                            Toast.makeText(this, "Błąd: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            Toast.makeText(this, getString(R.string.error) + e.getMessage(), Toast.LENGTH_SHORT).show());
         });
 
-        builder.setNegativeButton("Anuluj", (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton(R.string.decline, (dialog, which) -> dialog.dismiss());
         builder.show();
     }
 }

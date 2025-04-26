@@ -42,21 +42,21 @@ public class RegisterActivity extends AppCompatActivity {
         String pass = passwordInput.getText().toString().trim();
 
         if (email.isEmpty() || pass.isEmpty()) {
-            Toast.makeText(this, "Uzupełnij wszystkie pola", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.fill_all_fields, Toast.LENGTH_SHORT).show();
             return;
         }
 
         mAuth.createUserWithEmailAndPassword(email, pass)
                 .addOnSuccessListener(authResult -> {
-                    Toast.makeText(this, "Rejestracja zakończona", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.registration_complete, Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(this, MainActivity.class));
                     finish();
                 })
                 .addOnFailureListener(e -> {
                     if (e instanceof FirebaseAuthUserCollisionException) {
-                        Toast.makeText(this, "Konto z tym mailem już istnieje", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, R.string.account_with_that_email_exist, Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(this, "Błąd: " + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.error) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

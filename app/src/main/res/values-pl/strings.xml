@@ -39,4 +39,16 @@
     <string name="username">Nazwa użytkownika</string>
     <string name="register_action">Zarejestruj się</string>
     <string name="have_account_login_popup">Masz już konto? Zaloguj się</string>
+    <string name="enter_login_and_password">Wprowadź email i hasło</string>
+    <string name="login_failed">Logowanie nieudane:\n</string>
+    <string name="password_reset">Resetowanie hasła</string>
+    <string name="enter_email">Podaj email</string>
+    <string name="send">Wyślij</string>
+    <string name="decline">Anuluj</string>
+    <string name="email_can_not_be_empty">Email nie może być pusty</string>
+    <string name="error">"Błąd: "</string>
+    <string name="reset_password_mail_send">Jeżeli użytkownik istnieje mail do resetu hasła został wysłany.</string>
+    <string name="fill_all_fields">Uzupełnij wszystkie pola</string>
+    <string name="registration_complete">Rejestracja zakończona</string>
+    <string name="account_with_that_email_exist">Konto z tym mailem już istnieje</string>
 </resources>

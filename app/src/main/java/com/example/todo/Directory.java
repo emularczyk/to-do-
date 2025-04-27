@@ -4,14 +4,32 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.UUID; // for generating random IDs
 
 public class Directory implements Parcelable {
+    private String id;
     private String name;
     private final ArrayList<String> notes;
 
-    public Directory(String name) {
+
+    public Directory(String id, String name) {
+        this.id = id;
         this.name = name;
         this.notes = new ArrayList<>();
+    }
+
+    public Directory(String name) {
+        this.id = UUID.randomUUID().toString(); // 🔥 Auto-generate ID
+        this.name = name;
+        this.notes = new ArrayList<>();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) { // (optional)
+        this.id = id;
     }
 
     public String getName() {
@@ -29,13 +47,16 @@ public class Directory implements Parcelable {
         notes.add(note);
     }
 
+    // Parcelable stuff
     protected Directory(Parcel in) {
+        id = in.readString();
         name = in.readString();
         notes = in.createStringArrayList();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         dest.writeString(name);
         dest.writeStringList(notes);
     }

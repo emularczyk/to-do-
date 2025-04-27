@@ -8,20 +8,31 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<Directory> directories;
     private DirectoryAdapter directoryAdapter;
 
     private FirebaseAuth mAuth;
+    private DatabaseReference databaseRef;
+    private String currentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,15 +41,18 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        directories = new ArrayList<>();
-        if (getIntent().hasExtra("directories")) {
-            ArrayList<Directory> receivedDirectories = getIntent().getParcelableArrayListExtra("directories");
-            if (receivedDirectories != null) {
-                directories.addAll(receivedDirectories);
-            }
+        String firebaseURL = "https://to-do-plus-plus-3bb3e-default-rtdb.europe-west1.firebasedatabase.app";
+        databaseRef = FirebaseDatabase.getInstance(firebaseURL).getReference("users");
+
+        if (mAuth.getCurrentUser() != null) {
+            currentUserId = mAuth.getCurrentUser().getUid();
+        } else {
+            currentUserId = "anonymous";
         }
 
+        directories = new ArrayList<>();
         initializeViews();
+        fetchDirectories(); // 🔥 załaduj katalogi od razu przy uruchomieniu
     }
 
     private void initializeViews() {
@@ -63,13 +77,63 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton(R.string.ok, (dialog, which) -> {
             String directoryName = input.getText().toString().trim();
             if (!directoryName.isEmpty()) {
-                directories.add(new Directory(directoryName));
-                directoryAdapter.notifyItemInserted(directories.size() - 1);
+                saveDirectoryToFirebase(directoryName);
             }
         });
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
 
         builder.show();
+    }
+
+    private void saveDirectoryToFirebase(String directoryName) {
+        String id = UUID.randomUUID().toString();
+        Map<String, Object> directoryData = new HashMap<>();
+        directoryData.put("id", id);
+        directoryData.put("name", directoryName);
+
+        databaseRef.child(currentUserId).child("directories").child(id).setValue(directoryData)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Directory added!", Toast.LENGTH_SHORT).show();
+                    fetchDirectories(); // 🔥 odśwież listę
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to add directory.", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                });
+    }
+
+    private void deleteDirectoryFromFirebase(String directoryId) {
+        databaseRef.child(currentUserId).child("directories").child(directoryId).removeValue()
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Directory deleted!", Toast.LENGTH_SHORT).show();
+                    fetchDirectories(); // 🔥 odśwież listę
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to delete directory.", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                });
+    }
+
+    private void fetchDirectories() {
+        databaseRef.child(currentUserId).child("directories").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                directories.clear();
+                for (DataSnapshot directorySnapshot : snapshot.getChildren()) {
+                    String id = directorySnapshot.child("id").getValue(String.class);
+                    String name = directorySnapshot.child("name").getValue(String.class);
+                    if (id != null && name != null) {
+                        directories.add(new Directory(id, name));
+                    }
+                }
+                directoryAdapter.notifyDataSetChanged(); // 🔥 odśwież widok
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Toast.makeText(MainActivity.this, "Failed to load directories.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -91,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-       if (id == R.id.action_logout) {
+        if (id == R.id.action_logout) {
             logoutUser();
             return true;
         }
@@ -99,10 +163,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logoutUser() {
-        mAuth.signOut(); // wylogowujemy użytkownika z Firebase Authentication
+        mAuth.signOut();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        finish(); // kończymy aktualną aktywność, aby nie móc wrócić wstecz
+        finish();
     }
 }

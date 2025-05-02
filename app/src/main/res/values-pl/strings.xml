@@ -51,4 +51,7 @@
     <string name="fill_all_fields">Uzupełnij wszystkie pola</string>
     <string name="registration_complete">Rejestracja zakończona</string>
     <string name="account_with_that_email_exist">Konto z tym mailem już istnieje</string>
+    <string name="todo_image">Zdjęcie</string>
+    <string name="delete_note">Usuń notatkę</string>
+    <string name="delete_note_confirmation">Czy na pewno chcesz usunąć tę notatkę?</string>
 </resources>

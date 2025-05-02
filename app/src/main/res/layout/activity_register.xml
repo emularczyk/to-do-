@@ -14,6 +14,7 @@
             android:text="@string/todo"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:textColor="@color/black"
             android:layout_marginBottom="32dp" />
 
         <TextView
@@ -23,43 +24,57 @@
             android:text="@string/register"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:textColor="@color/black"
             android:layout_marginBottom="32dp" />
-
 
         <EditText
             android:id="@+id/registerUsername"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:hint="@string/username"
-            android:layout_marginBottom="16dp" />
+            android:padding="12dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/purple_700"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
 
         <EditText
             android:id="@+id/registerEmail"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:hint="@string/e_mail"
             android:inputType="textEmailAddress"
-            android:layout_marginBottom="16dp" />
+            android:padding="12dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/purple_700"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
 
         <EditText
             android:id="@+id/registerPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:hint="@string/pass"
             android:inputType="textPassword"
-            android:layout_marginBottom="24dp" />
+            android:padding="12dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/purple_700"
+            android:layout_marginBottom="24dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
 
         <Button
             android:id="@+id/registerButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:text="@string/register_action" />
 
         <TextView
             android:id="@+id/loginRedirect"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:text="@string/have_account_login_popup"
             android:textColor="@color/purple_700"
+            android:gravity="center"
+            android:padding="12dp"
             android:layout_marginTop="16dp" />
-    </LinearLayout>
+</LinearLayout>

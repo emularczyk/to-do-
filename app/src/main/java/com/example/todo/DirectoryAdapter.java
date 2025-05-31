@@ -10,19 +10,32 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.app.Activity;
 import android.content.Intent;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.DirectoryViewHolder> {
     public static final int DIRECTORY_NOTES_REQUEST = 2;
     private final ArrayList<Directory> directories;
     private final Context context;
 
-    public DirectoryAdapter(ArrayList<Directory> directories, Context context) {
+    private final DatabaseReference databaseRef;
+
+    private final String currentUserId;
+
+    public DirectoryAdapter(ArrayList<Directory> directories, Context context, String currentUserId) {
         this.directories = directories;
         this.context = context;
+        this.currentUserId = currentUserId;
+        this.databaseRef = FirebaseDatabase.getInstance().getReference("users");
     }
 
     @NonNull
@@ -68,26 +81,50 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.Dire
         builder.setPositiveButton(R.string.ok, (dialog, which) -> {
             String newName = input.getText().toString().trim();
             if (!newName.isEmpty()) {
+                DatabaseReference directoryRef = databaseRef
+                        .child(currentUserId)
+                        .child("directories")
+                        .child(directory.getId());
+
                 directory.setName(newName);
-                notifyItemChanged(position);
+                directoryRef.setValue(directory)
+                        .addOnSuccessListener(aVoid -> {
+                            notifyItemChanged(position);
+                            Toast.makeText(context, "Directory updated successfully", Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(context, "Failed to update directory", Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                        });
             }
         });
-        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
 
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
         builder.show();
     }
-
     private void showDeleteDialog(int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.delete_directory);
         builder.setMessage(R.string.delete_directory_hint);
 
-        builder.setPositiveButton(R.string.yes, (dialog, which) -> {
-            directories.remove(position);
-            notifyItemRemoved(position);
-        });
-        builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
+        Directory directory = directories.get(position);
 
+        builder.setPositiveButton(R.string.yes, (dialog, which) -> {
+            // Usuń z Firebase
+            databaseRef.child(currentUserId)
+                    .child("directories")
+                    .child(directory.getId())
+                    .removeValue()
+                    .addOnSuccessListener(aVoid -> {
+                        directories.remove(position);
+                        notifyItemRemoved(position);
+                        Toast.makeText(context, "Directory deleted successfully", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(context, "Failed to delete directory", Toast.LENGTH_SHORT).show());
+        });
+
+        builder.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
         builder.show();
     }
 

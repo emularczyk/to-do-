@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        String firebaseURL = "https://to-do-plus-plus-3bb3e-default-rtdb.europe-west1.firebasedatabase.app";
+        String firebaseURL = "https://todo-61e76-default-rtdb.europe-west1.firebasedatabase.app";
         databaseRef = FirebaseDatabase.getInstance(firebaseURL).getReference("users");
 
         if (mAuth.getCurrentUser() != null) {
@@ -52,14 +52,15 @@ public class MainActivity extends AppCompatActivity {
 
         directories = new ArrayList<>();
         initializeViews();
-        fetchDirectories(); // 🔥 załaduj katalogi od razu przy uruchomieniu
+        fetchDirectories();
     }
 
     private void initializeViews() {
         RecyclerView recyclerView = findViewById(R.id.directoriesRecyclerView);
         Button addDirectoryButton = findViewById(R.id.addDirectoryButton);
 
-        directoryAdapter = new DirectoryAdapter(directories, this);
+        // Przekazanie currentUserId do adaptera
+        directoryAdapter = new DirectoryAdapter(directories, this, currentUserId);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(directoryAdapter);
 
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         databaseRef.child(currentUserId).child("directories").child(id).setValue(directoryData)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Directory added!", Toast.LENGTH_SHORT).show();
-                    fetchDirectories(); // 🔥 odśwież listę
+                    fetchDirectories();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to add directory.", Toast.LENGTH_SHORT).show();
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         databaseRef.child(currentUserId).child("directories").child(directoryId).removeValue()
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Directory deleted!", Toast.LENGTH_SHORT).show();
-                    fetchDirectories(); // 🔥 odśwież listę
+                    fetchDirectories();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to delete directory.", Toast.LENGTH_SHORT).show();
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                         directories.add(new Directory(id, name));
                     }
                 }
-                directoryAdapter.notifyDataSetChanged(); // 🔥 odśwież widok
+                directoryAdapter.notifyDataSetChanged();
             }
 
             @Override

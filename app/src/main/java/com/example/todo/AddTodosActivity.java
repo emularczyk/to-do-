@@ -56,7 +56,7 @@ public class AddTodosActivity extends AppCompatActivity {
         directoryId = intent.getStringExtra("directoryId");
         directoryName = intent.getStringExtra("directoryName");
 
-        String firebaseURL = "https://to-do-plus-plus-3bb3e-default-rtdb.europe-west1.firebasedatabase.app";
+        String firebaseURL = "https://todo-61e76-default-rtdb.europe-west1.firebasedatabase.app";
         databaseRef = FirebaseDatabase.getInstance(firebaseURL).getReference("users");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_todo);
@@ -252,6 +252,26 @@ public class AddTodosActivity extends AppCompatActivity {
         }
     }
 
+    private void refreshData() {
+        todosRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                allNotes.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Todo todo = snapshot.getValue(Todo.class);
+                    if (todo != null) {
+                        allNotes.add(todo);
+                    }
+                }
+                todoAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(AddTodosActivity.this, "Failed to refresh data", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {

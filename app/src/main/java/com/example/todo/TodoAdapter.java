@@ -33,7 +33,8 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         this.context = context;
         this.directoryId = directoryId;
         this.currentUserId = currentUserId;
-        this.databaseRef = FirebaseDatabase.getInstance().getReference("users");
+        this.databaseRef = FirebaseDatabase.getInstance("https://todo-61e76-default-rtdb.europe-west1.firebasedatabase.app")
+                .getReference("users");
     }
 
     @NonNull
@@ -92,13 +93,36 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         builder.setPositiveButton(R.string.ok, (dialog, which) -> {
             String newText = input.getText().toString().trim();
             if (!newText.isEmpty()) {
+                // Najpierw aktualizuj obiekt lokalnie
                 todo.setContent(newText);
-                updateTodoInFirebase(todo);
-                notifyItemChanged(position);
+
+                // Przygotuj pełną ścieżkę do notatki w Firebase
+                DatabaseReference todoRef = FirebaseDatabase.getInstance()
+                        .getReference("users")
+                        .child(currentUserId)
+                        .child("directories")
+                        .child(directoryId)
+                        .child("todos")
+                        .child(todo.getId());
+
+                // Zapisz cały obiekt do Firebase
+                todoRef.setValue(todo)
+                        .addOnSuccessListener(aVoid -> {
+                            // Po udanym zapisie zaktualizuj widok
+                            todoList.set(position, todo);
+                            notifyItemChanged(position);
+                            Toast.makeText(context, "Note updated successfully", Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            // W przypadku błędu, przywróć starą wartość
+                            Todo oldTodo = todoList.get(position);
+                            todo.setContent(oldTodo.getContent());
+                            Toast.makeText(context, "Failed to update note", Toast.LENGTH_SHORT).show();
+                        });
             }
         });
-        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
 
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
@@ -115,15 +139,22 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
         builder.show();
     }
 
-    private void updateTodoInFirebase(Todo todo) {
-        databaseRef.child(currentUserId)
+    public void updateTodoInFirebase(Todo todo) {
+        DatabaseReference todoRef = databaseRef.child(currentUserId)
                 .child("directories")
                 .child(directoryId)
                 .child("todos")
-                .child(todo.getId())
-                .setValue(todo)
-                .addOnFailureListener(e ->
-                        Toast.makeText(context, "Failed to update note", Toast.LENGTH_SHORT).show());
+                .child(todo.getId());
+
+        todoRef.setValue(todo)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("TodoAdapter", "Note updated successfully");
+                    Toast.makeText(context, "Note updated successfully", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("TodoAdapter", "Failed to update note: " + e.getMessage());
+                    Toast.makeText(context, "Failed to update note", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void deleteTodoFromFirebase(Todo todo, int position) {

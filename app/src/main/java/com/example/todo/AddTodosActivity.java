@@ -1,28 +1,25 @@
 package com.example.todo;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
-import android.view.MenuItem;
+import android.util.Base64;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Switch;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,7 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class AddTodosActivity extends AppCompatActivity {
+public class AddTodosActivity extends BaseActivity {
     private TodoAdapter todoAdapter;
     private SharedPreferences sharedPreferences;
     private static final int DIRECTORY_MANAGEMENT_REQUEST = 1;
@@ -49,26 +46,30 @@ public class AddTodosActivity extends AppCompatActivity {
     private String directoryName;
     private String currentUserId;
     private final ArrayList<Todo> allNotes = new ArrayList<>();
+    private String todoId;
+    private EditText inputTodo;
+    private Bitmap capturedImage = null;
+    private ImageView todoImageView;
+
+    private FloatingActionButton deleteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         directoryId = intent.getStringExtra("directoryId");
-        directoryName = intent.getStringExtra("directoryName");
+        todoId = intent.getStringExtra("todoId");
 
         String firebaseURL = "https://todo-61e76-default-rtdb.europe-west1.firebasedatabase.app";
         databaseRef = FirebaseDatabase.getInstance(firebaseURL).getReference("users");
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.add_todo);
+        initializeViews();
+
         setupCameraButton();
+        setupDeletePictureButton();
 
         mAuth = FirebaseAuth.getInstance();
-
-        if (mAuth.getCurrentUser() != null) {
-            currentUserId = mAuth.getCurrentUser().getUid();
-        } else {
-            currentUserId = "anonymous";
-        }
+        currentUserId = (mAuth.getCurrentUser() != null) ? mAuth.getCurrentUser().getUid() : "anonymous";
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -77,95 +78,112 @@ public class AddTodosActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
         boolean isNightMode = sharedPreferences.getBoolean("night_mode", false);
-
         AppCompatDelegate.setDefaultNightMode(
                 isNightMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
         );
 
+
         todosRef = databaseRef.child(currentUserId).child("directories").child(directoryId).child("todos");
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        todoAdapter = new TodoAdapter(allNotes, this, directoryId, currentUserId);
-        recyclerView.setAdapter(todoAdapter);
-
-        loadTodosFromFirebase();
-        initializeViews();
+        if (todoExist()) {
+            setCurrentData();
+        }
+        setPictureVisibility();
     }
 
-    private void loadTodosFromFirebase() {
-        todosRef.addValueEventListener(new ValueEventListener() {
+    private boolean todoExist() {
+        return todoId != null;
+    }
+
+    private void setCurrentData() {
+        todosRef.child(todoId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                allNotes.clear();
-
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Todo todo = snapshot.getValue(Todo.class);
-                    if (todo != null) {
-                        allNotes.add(todo);
-                    }
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String content = snapshot.child("content").getValue(String.class);
+                inputTodo.setText(content);
+                String capturedImageBase64 = snapshot.child("image").getValue(String.class);
+                if (capturedImageBase64 != null && !capturedImageBase64.isEmpty()) {
+                    capturedImage = decodeImage(capturedImageBase64);
                 }
-
-                todoAdapter.notifyDataSetChanged();
+                setPictureVisibility();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("AddTodosActivity", "Failed to load todos: " + databaseError.getMessage());
-                Toast.makeText(AddTodosActivity.this, "Failed to load todos.", Toast.LENGTH_SHORT).show();
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getApplicationContext(), "Failed to load data", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void setPictureVisibility() {
+        if (capturedImage == null) {
+            todoImageView.setVisibility(View.GONE);
+            deleteButton.setVisibility(View.GONE);
+        } else {
+            todoImageView.setImageBitmap(capturedImage);
+            todoImageView.setVisibility(View.VISIBLE);
+            deleteButton.setVisibility(View.VISIBLE);
+        }
     }
 
     private void initializeViews() {
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        EditText inputTodo = findViewById(R.id.inputTodo);
+        inputTodo = findViewById(R.id.inputTodo);
+        todoImageView = findViewById(R.id.todoImage);
+        deleteButton = findViewById(R.id.deletePictureButton);
         Button addButton = findViewById(R.id.addButton);
 
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch themeToggleBtn = findViewById(R.id.themeToggleBtn);
-        boolean isNightMode = sharedPreferences.getBoolean("night_mode", false);
-        themeToggleBtn.setText(isNightMode ? getString(R.string.light_mode) : getString(R.string.dark_mode));
-        themeToggleBtn.setChecked(isNightMode);
-        themeToggleBtn.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("night_mode", isChecked);
-            editor.apply();
-            themeToggleBtn.setText(isChecked ? getString(R.string.light_mode) : getString(R.string.dark_mode));
-
-            AppCompatDelegate.setDefaultNightMode(
-                    isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
-            );
-
-            recreate();
-        });
+        if (todoExist()) {
+            addButton.setText(R.string.edit_note);
+        }
 
         addButton.setOnClickListener(v -> {
             String todoText = inputTodo.getText().toString().trim();
             if (!todoText.isEmpty()) {
-                saveTodoToFirebase(todoText);
+                saveTodoWithOptionalImage();
                 inputTodo.setText("");
             }
+            onBackPressed();
         });
     }
 
-    private void saveTodoToFirebase(String todoText) {
-        String todoId = databaseRef.push().getKey();
-        if (todoId != null) {
-            Todo todo = new Todo(todoId, "text", todoText);
-
-            databaseRef.child(currentUserId)
-                    .child("directories")
-                    .child(directoryId)
-                    .child("todos")
-                    .child(todoId)
-                    .setValue(todo)
-                    .addOnSuccessListener(aVoid ->
-                            Toast.makeText(this, "Todo added successfully!", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to add todo.", Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
-                    });
+    private void saveTodoWithOptionalImage() {
+        if (todoId == null) {
+            todoId = UUID.randomUUID().toString();
         }
+
+        String todoText = inputTodo.getText().toString().trim();
+        Todo todo;
+
+        if (capturedImage == null) {
+            todo = new Todo(todoId, todoText);
+        } else {
+            String encodedImage = encodeImage(capturedImage);
+            todo = new Todo(todoId, todoText, encodedImage);
+        }
+
+        todosRef.child(todoId)
+                .setValue(todo)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Todo saved successfully!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to save todo.", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                });
+
+        finish();
+    }
+
+    private String encodeImage(Bitmap bitmap) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+    }
+
+    private Bitmap decodeImage(String encodedImage) {
+        byte[] decodedBytes = Base64.decode(encodedImage, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
     }
 
     @Override
@@ -188,7 +206,9 @@ public class AddTodosActivity extends AppCompatActivity {
             if (extras != null) {
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
                 if (imageBitmap != null) {
-                    saveImageToFirebase(imageBitmap);
+                    capturedImage = imageBitmap;
+                    setPictureVisibility();
+                    Toast.makeText(this, "Image captured.", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -220,70 +240,14 @@ public class AddTodosActivity extends AppCompatActivity {
         }
     }
 
-    private void saveImageToFirebase(Bitmap bitmap) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-            byte[] imageBytes = baos.toByteArray();
-            String base64Image = android.util.Base64.encodeToString(imageBytes, android.util.Base64.DEFAULT);
+    private void setupDeletePictureButton() {
+        ImageView todoImage = findViewById(R.id.todoImage);
 
-            String todoId = UUID.randomUUID().toString();
-            Todo todo = new Todo(todoId, "image", "data:image/jpeg;base64," + base64Image);
-
-            databaseRef.child(currentUserId)
-                    .child("directories")
-                    .child(directoryId)
-                    .child("todos")
-                    .child(todoId)
-                    .setValue(todo)
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d("Firebase", "Image saved successfully");
-                        Toast.makeText(this, "Image saved successfully!", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e("Firebase", "Error saving image: " + e.getMessage());
-                        Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
-                    });
-
-        } catch (Exception e) {
-            Log.e("Firebase", "Error processing image: " + e.getMessage());
-            Toast.makeText(this, "Error processing image", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-    }
-
-    private void refreshData() {
-        todosRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                allNotes.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Todo todo = snapshot.getValue(Todo.class);
-                    if (todo != null) {
-                        allNotes.add(todo);
-                    }
-                }
-                todoAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(AddTodosActivity.this, "Failed to refresh data", Toast.LENGTH_SHORT).show();
-            }
+        deleteButton.setOnClickListener(v -> {
+            capturedImage = null;
+            todoImage.setImageDrawable(null);
+            Toast.makeText(this, "Image removed.", Toast.LENGTH_SHORT).show();
+            setPictureVisibility();
         });
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
     }
 }

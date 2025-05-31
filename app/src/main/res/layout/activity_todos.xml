@@ -2,21 +2,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="?attr/actionBarSize"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:layout_marginTop="?attr/actionBarSize">
+    android:padding="24dp"
+    android:background="@color/white">
 
     <Button
-        android:id="@+id/addDirectoryButton"
+        android:id="@+id/addButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/new_directory"/>
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/add_todo"
+        android:minWidth="88dp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/directoriesRecyclerView"
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         android:layout_weight="1"
-        android:contentDescription="@string/directories_management"
-        android:scrollbars="vertical" />
+        android:contentDescription="@string/directory_notes" />
 </LinearLayout>

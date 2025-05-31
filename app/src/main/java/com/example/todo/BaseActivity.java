@@ -19,6 +19,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu, menu);
         sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
         boolean isNightMode = sharedPreferences.getBoolean("night_mode", false);
+
+        MenuItem themeToggle = menu.findItem(R.id.action_theme_toggle);
+        themeToggle.setTitle(isNightMode ? R.string.light_mode : R.string.dark_mode);
+
         return true;
     }
 
@@ -38,6 +42,8 @@ public abstract class BaseActivity extends AppCompatActivity {
             AppCompatDelegate.setDefaultNightMode(
                     newMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
             );
+
+            item.setTitle(newMode ? R.string.light_mode : R.string.dark_mode);
 
             recreate();
             return true;

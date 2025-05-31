@@ -48,7 +48,6 @@ public class Directory implements Parcelable {
         notes.add(note);
     }
 
-    // Parcelable stuff
     protected Directory(Parcel in) {
         id = in.readString();
         name = in.readString();

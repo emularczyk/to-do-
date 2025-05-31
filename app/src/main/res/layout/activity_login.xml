@@ -4,8 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
-    android:gravity="center"
-    android:background="@color/white">
+    android:gravity="center">
 
     <TextView
         android:id="@+id/appTitle"
@@ -14,17 +13,15 @@
         android:text="@string/todo"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/black"
         android:layout_marginBottom="32dp" />
 
     <TextView
         android:id="@+id/loginTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/logout"
+        android:text="@string/login"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/black"
         android:layout_marginBottom="32dp" />
 
     <EditText
@@ -35,7 +32,6 @@
         android:inputType="textEmailAddress"
         android:layout_marginBottom="16dp"
         android:padding="12dp"
-        android:textColor="@color/black"
         android:textColorHint="@color/purple_700"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
 
@@ -47,7 +43,6 @@
         android:inputType="textPassword"
         android:layout_marginBottom="24dp"
         android:padding="12dp"
-        android:textColor="@color/black"
         android:textColorHint="@color/purple_700"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
 
@@ -70,6 +65,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/forgot_pass_popup"
-        android:textColor="@android:color/holo_blue_dark"
         android:paddingTop="10dp" />
 </LinearLayout>

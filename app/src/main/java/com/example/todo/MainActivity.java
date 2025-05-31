@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -96,6 +97,12 @@ public class MainActivity extends BaseActivity {
                 });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchDirectories();
+    }
+
     private void fetchDirectories() {
         if (databaseRef != null && currentUserId != null) {
             databaseRef.child(currentUserId).child("directories").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -105,8 +112,27 @@ public class MainActivity extends BaseActivity {
                     for (DataSnapshot directorySnapshot : snapshot.getChildren()) {
                         String id = directorySnapshot.child("id").getValue(String.class);
                         String name = directorySnapshot.child("name").getValue(String.class);
+
                         if (id != null && name != null) {
-                            directoryList.add(new Directory(id, name));
+                            Directory directory = new Directory(id, name);
+
+                            databaseRef.child(currentUserId).child("directories").child(id).child("todos")
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot todosSnapshot) {
+                                            for (DataSnapshot todoSnapshot : todosSnapshot.getChildren()) {
+                                                directory.addNote(todoSnapshot.getKey());
+                                            }
+                                            directoryAdapter.notifyDataSetChanged();
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+                                            Toast.makeText(MainActivity.this, "Failed to load notes count.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+
+                            directoryList.add(directory);
                         }
                     }
                     directoryAdapter.notifyDataSetChanged();
@@ -118,7 +144,7 @@ public class MainActivity extends BaseActivity {
                 }
             });
         } else {
-            Toast.makeText(this, "Database reference or user ID " + currentUserId, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Database reference or user ID is null.", Toast.LENGTH_SHORT).show();
         }
     }
 }

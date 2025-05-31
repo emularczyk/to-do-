@@ -94,8 +94,6 @@ public class TodosActivity extends BaseActivity {
     }
 
     private void initializeViews() {
-//        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-//        EditText inputTodo = findViewById(R.id.inputTodo);
         Button addButton = findViewById(R.id.addButton);
 
         addButton.setOnClickListener(v -> {
@@ -105,6 +103,14 @@ public class TodosActivity extends BaseActivity {
             intent.putExtra("userId", currentUserId);
             startActivity(intent);
         });
+    }
+
+    @Override
+    public void finish() {
+        Intent data = new Intent();
+        data.putExtra("isUpdated", true);
+        setResult(RESULT_OK, data);
+        super.finish();
     }
 
     @Override

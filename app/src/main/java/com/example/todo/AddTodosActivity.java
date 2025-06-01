@@ -36,6 +36,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -80,6 +81,7 @@ public class AddTodosActivity extends BaseActivity {
         setupDeletePictureButton();
 
         storageRef = FirebaseStorage.getInstance().getReference();
+
         pdfNameText = findViewById(R.id.pdfNameText);
         Button attachPdfButton = findViewById(R.id.attachPdfButton);
 
@@ -108,7 +110,8 @@ public class AddTodosActivity extends BaseActivity {
         todosRef = databaseRef.child(currentUserId).child("directories").child(directoryId).child("todos");
 
         if (todoExist()) {
-            setCurrentData();
+            loadTodoDetails();
+//            setCurrentData();
         }
         setPictureVisibility();
     }
@@ -117,24 +120,38 @@ public class AddTodosActivity extends BaseActivity {
         return todoId != null;
     }
 
-    private void setCurrentData() {
-        todosRef.child(todoId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String content = snapshot.child("content").getValue(String.class);
-                inputTodo.setText(content);
-                String capturedImageBase64 = snapshot.child("image").getValue(String.class);
-                if (capturedImageBase64 != null && !capturedImageBase64.isEmpty()) {
-                    capturedImage = decodeImage(capturedImageBase64);
-                }
-                setPictureVisibility();
-            }
+    private void loadTodoDetails() {
+        if (todoId != null) {
+            todosRef.child(todoId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String content = snapshot.child("content").getValue(String.class);
+                    String encodedImage = snapshot.child("image").getValue(String.class);
+                    String pdfName = snapshot.child("name").getValue(String.class);
+                    String pdfPath = snapshot.child("path").getValue(String.class);
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getApplicationContext(), "Failed to load data", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    inputTodo.setText(content);
+
+                    if (encodedImage != null && !encodedImage.isEmpty()) {
+                        capturedImage = decodeImage(encodedImage);
+                        setPictureVisibility();
+                    }
+
+                    if (pdfName != null && pdfPath != null) {
+                        // Nie tworzymy Uri z pliku, tylko zachowujemy nazwę i ścieżkę
+                        pdfFileName = pdfName;
+                        pdfNameText.setText(pdfName);
+                    } else {
+                        pdfNameText.setText(R.string.no_pdf_attached);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(getApplicationContext(), "Failed to load data", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void setPictureVisibility() {
@@ -169,37 +186,72 @@ public class AddTodosActivity extends BaseActivity {
     }
 
     private void saveTodoWithOptionalImage() {
-        String todoId = todosRef.push().getKey();
+        String newTodoId = todoExist() ? todoId : todosRef.push().getKey();
 
-        if (todoId == null) {
-            todoId = UUID.randomUUID().toString();
+        if (newTodoId == null) {
+            newTodoId = UUID.randomUUID().toString();
         }
 
         String todoText = inputTodo.getText().toString().trim();
         Todo todo;
 
         if (capturedImage == null) {
-            todo = new Todo(todoId, todoText);
+            todo = new Todo(newTodoId, todoText);
         } else {
             String encodedImage = encodeImage(capturedImage);
-            todo = new Todo(todoId, todoText, encodedImage);
+            todo = new Todo(newTodoId, todoText, encodedImage);
         }
 
-        if (pdfUri != null) {
-            uploadPdfToFirebase(todoId);
+        String finalNewTodoId = newTodoId;
+
+        if (todoExist()) {
+            todosRef.child(todoId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    todosRef.child(finalNewTodoId).setValue(todo)
+                            .addOnSuccessListener(aVoid -> {
+                                if (pdfUri != null) {
+                                    uploadPdfToFirebase(finalNewTodoId);
+                                } else {
+                                    String existingPdfName = snapshot.child("name").getValue(String.class);
+                                    String existingPdfPath = snapshot.child("path").getValue(String.class);
+                                    if (existingPdfName != null && existingPdfPath != null) {
+                                        todosRef.child(finalNewTodoId).child("name").setValue(existingPdfName);
+                                        todosRef.child(finalNewTodoId).child("path").setValue(existingPdfPath);
+                                    }
+                                    Intent resultIntent = new Intent();
+                                    resultIntent.putExtra("directoryId", directoryId);
+                                    resultIntent.putExtra("isUpdated", true);
+                                    setResult(RESULT_OK, resultIntent);
+                                    Toast.makeText(AddTodosActivity.this, "Todo saved successfully!", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }
+                            });
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(AddTodosActivity.this, "Failed to load PDF data", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            });
+        } else {
+            // Nowa notatka
+            todosRef.child(finalNewTodoId)
+                    .setValue(todo)
+                    .addOnSuccessListener(aVoid -> {
+                        if (pdfUri != null) {
+                            uploadPdfToFirebase(finalNewTodoId);
+                        } else {
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("directoryId", directoryId);
+                            resultIntent.putExtra("isUpdated", true);
+                            setResult(RESULT_OK, resultIntent);
+                            Toast.makeText(this, "Todo saved successfully!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    });
         }
-
-        todosRef.child(todoId)
-                .setValue(todo)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Todo saved successfully!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to save todo.", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                });
-
-        finish();
     }
 
     private String encodeImage(Bitmap bitmap) {
@@ -260,13 +312,7 @@ public class AddTodosActivity extends BaseActivity {
                 }
             }
         }
-//        if (uri.getScheme().equals("content")) {
-//            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-//                if (cursor != null && cursor.moveToFirst()) {
-//                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-//                }
-//            }
-//        }
+
         if (result == null) {
             result = uri.getPath();
             int cut = result.lastIndexOf('/');
@@ -279,18 +325,42 @@ public class AddTodosActivity extends BaseActivity {
 
     private void uploadPdfToFirebase(String todoId) {
         if (pdfUri != null) {
-            StorageReference pdfRef = storageRef.child("pdfs/" + todoId + "/" + pdfFileName);
+            try {
+                String fileName = "pdf_" + System.currentTimeMillis() + ".pdf";
+                java.io.File localFile = new java.io.File(getFilesDir(), fileName);
 
-            pdfRef.putFile(pdfUri)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        pdfRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                            String pdfUrl = uri.toString();
-                            updateTodoWithPdfUrl(todoId, pdfUrl);
+                java.io.InputStream inputStream = getContentResolver().openInputStream(pdfUri);
+                java.io.FileOutputStream outputStream = new java.io.FileOutputStream(localFile);
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+                outputStream.close();
+                inputStream.close();
+
+                todosRef.child(todoId).child("name").setValue(fileName);
+                todosRef.child(todoId).child("path").setValue(localFile.getAbsolutePath());
+                todosRef.child(todoId).child("timestamp").setValue(System.currentTimeMillis())
+                        .addOnSuccessListener(aVoid -> {
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("directoryId", directoryId);
+                            resultIntent.putExtra("isUpdated", true);
+                            setResult(RESULT_OK, resultIntent);
+                            Toast.makeText(this, "Todo and PDF saved successfully!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Failed to save PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                            finish();
                         });
-                    })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "Failed to upload PDF", Toast.LENGTH_SHORT).show()
-                    );
+
+            } catch (Exception e) {
+                Toast.makeText(this, "Failed to save PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+                finish();
+            }
         }
     }
 

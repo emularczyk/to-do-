@@ -20,6 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ToDo">
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <!-- Deklaracje aktywności -->
         <activity android:name=".MainActivity" android:theme="@style/Theme.ToDo" android:exported="true"/>
         <activity android:name=".RegisterActivity" android:theme="@style/Theme.ToDo" />

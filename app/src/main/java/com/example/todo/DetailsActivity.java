@@ -1,5 +1,6 @@
 package com.example.todo;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.FileProvider;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,6 +24,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.io.File;
 
 public class DetailsActivity extends BaseActivity {
     private EditText inputTodo;
@@ -69,28 +74,58 @@ public class DetailsActivity extends BaseActivity {
             Intent editIntent = new Intent(this, AddTodosActivity.class);
             editIntent.putExtra("todoId", todoID);
             editIntent.putExtra("directoryId", directoryID);
-            startActivity(editIntent);
+            startActivityForResult(editIntent, 100); // Użyj startActivityForResult
         });
 
         openPdfButton.setOnClickListener(v -> {
             if (pdfUrl != null) {
-                Intent intentPDF = new Intent(Intent.ACTION_VIEW);
-                intentPDF.setData(Uri.parse(pdfUrl));
-                startActivity(intentPDF);
+                try {
+                    File pdfFile = new File(pdfUrl);
+                    if (pdfFile.exists()) {
+                        Uri contentUri = FileProvider.getUriForFile(this,
+                                getApplicationContext().getPackageName() + ".fileprovider",
+                                pdfFile);
+
+                        Intent intentPDF = new Intent(Intent.ACTION_VIEW);
+                        intentPDF.setDataAndType(contentUri, "application/pdf");
+                        intentPDF.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                        try {
+                            startActivity(intentPDF);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(this, "Nie znaleziono aplikacji do otwarcia PDF", Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "Plik PDF nie istnieje", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(this, "Błąd podczas otwierania PDF: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
             } else {
                 Toast.makeText(this, "Brak załączonego pliku PDF", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
     private void loadTodoDetails() {
         todoRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    Intent intent = new Intent(DetailsActivity.this, TodosActivity.class);
+                    intent.putExtra("directoryId", directoryID);
+                    startActivity(intent);
+                    finish();
+                    return;
+                }
+
                 String content = snapshot.child("content").getValue(String.class);
                 String encodedImage = snapshot.child("image").getValue(String.class);
-                String pdfName = snapshot.child("pdfName").getValue(String.class);
-                pdfUrl = snapshot.child("pdfUrl").getValue(String.class);
+                String fileName = snapshot.child("name").getValue(String.class);
+                String filePath = snapshot.child("path").getValue(String.class);
 
                 inputTodo.setText(content);
 
@@ -102,22 +137,39 @@ public class DetailsActivity extends BaseActivity {
                     todoImageView.setVisibility(View.GONE);
                 }
 
-                if (pdfName != null && pdfUrl != null) {
-                    pdfNameText.setText(pdfName);
+                if (fileName != null && !fileName.isEmpty() && filePath != null && !filePath.isEmpty()) {
+                    pdfNameText.setText(fileName);
                     openPdfButton.setVisibility(View.VISIBLE);
+                    pdfUrl = filePath;
                 } else {
                     pdfNameText.setText(R.string.no_pdf_attached);
                     openPdfButton.setVisibility(View.GONE);
+                    pdfUrl = null;
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(DetailsActivity.this, "Nie udało się załadować szczegółów notatki", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(DetailsActivity.this, TodosActivity.class);
+                intent.putExtra("directoryId", directoryID);
+                startActivity(intent);
+                finish();
             }
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100) {
+            // Zawsze wracaj do listy notatek po edycji
+            Intent intent = new Intent(this, TodosActivity.class);
+            intent.putExtra("directoryId", directoryID);
+            startActivity(intent);
+            finish();
+        }
+    }
     private Bitmap decodeImage(String encodedImage) {
         byte[] decodedBytes = Base64.decode(encodedImage, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
@@ -130,17 +182,6 @@ public class DetailsActivity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100 && resultCode == RESULT_OK) {
-            boolean isUpdated = data.getBooleanExtra("isUpdated", false);
-            if (isUpdated) {
-                recreate();
-            }
-        }
     }
 
     @Override

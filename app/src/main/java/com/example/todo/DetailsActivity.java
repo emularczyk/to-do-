@@ -95,18 +95,18 @@ public class DetailsActivity extends BaseActivity {
                         try {
                             startActivity(intentPDF);
                         } catch (ActivityNotFoundException e) {
-                            Toast.makeText(this, "Nie znaleziono aplikacji do otwarcia PDF", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, R.string.no_pdf_app_found, Toast.LENGTH_LONG).show();
                         }
                     } else {
-                        Toast.makeText(this, "Plik PDF nie istnieje", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, R.string.pdf_file_doesnt_exist, Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
-                    Toast.makeText(this, "Błąd podczas otwierania PDF: " + e.getMessage(),
+                    Toast.makeText(this, getString(R.string.error_during_pdf_opening) + e.getMessage(),
                             Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             } else {
-                Toast.makeText(this, "Brak załączonego pliku PDF", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.attached_pdf_missing, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -153,7 +153,7 @@ public class DetailsActivity extends BaseActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(DetailsActivity.this, "Nie udało się załadować szczegółów notatki", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DetailsActivity.this, R.string.couldnt_load_note_details, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(DetailsActivity.this, TodosActivity.class);
                 intent.putExtra("directoryId", directoryID);
                 startActivity(intent);
@@ -170,9 +170,9 @@ public class DetailsActivity extends BaseActivity {
         intent.putExtra(Intent.EXTRA_TEXT, noteContent);
 
         try {
-            startActivity(Intent.createChooser(intent, "Udostępnij notatkę"));
+            startActivity(Intent.createChooser(intent, getString(R.string.share_note)));
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, "Nie znaleziono aplikacji do udostępniania", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.bluetooth_not_found, Toast.LENGTH_SHORT).show();
         }
     }
 

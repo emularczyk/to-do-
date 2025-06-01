@@ -119,7 +119,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
                 .child(todo.getId())
                 .setValue(todo)
                 .addOnFailureListener(e -> {
-                    Toast.makeText(context, "Failed to update note", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.failed_to_update_note, Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -158,10 +158,10 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder
                         }
                     }
 
-                    Toast.makeText(context, "Todo deleted successfully.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.todo_deleted_successfully, Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(context, "Failed to delete note", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.failed_to_delete_note, Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 });
     }

@@ -88,11 +88,11 @@ public class MainActivity extends BaseActivity {
 
         databaseRef.child(currentUserId).child("directories").child(id).setValue(directoryData)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Directory added!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.directory_added, Toast.LENGTH_SHORT).show();
                     fetchDirectories();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to add directory.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.failed_to_add_directory, Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 });
     }
@@ -128,7 +128,7 @@ public class MainActivity extends BaseActivity {
 
                                         @Override
                                         public void onCancelled(@NonNull DatabaseError error) {
-                                            Toast.makeText(MainActivity.this, "Failed to load notes count.", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(MainActivity.this, R.string.failed_to_load_notes_count, Toast.LENGTH_SHORT).show();
                                         }
                                     });
 
@@ -140,11 +140,11 @@ public class MainActivity extends BaseActivity {
 
                 @Override
                 public void onCancelled(DatabaseError error) {
-                    Toast.makeText(MainActivity.this, "Failed to load directories.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.failed_to_load_directories, Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
-            Toast.makeText(this, "Database reference or user ID is null.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.database_reference_or_user_id_is_null, Toast.LENGTH_SHORT).show();
         }
     }
 }

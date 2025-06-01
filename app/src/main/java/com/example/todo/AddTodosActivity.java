@@ -36,7 +36,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -138,7 +137,6 @@ public class AddTodosActivity extends BaseActivity {
                     }
 
                     if (pdfName != null && pdfPath != null) {
-                        // Nie tworzymy Uri z pliku, tylko zachowujemy nazwę i ścieżkę
                         pdfFileName = pdfName;
                         pdfNameText.setText(pdfName);
                     } else {
@@ -148,7 +146,7 @@ public class AddTodosActivity extends BaseActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(getApplicationContext(), "Failed to load data", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.failed_to_load_data), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -223,7 +221,7 @@ public class AddTodosActivity extends BaseActivity {
                                     resultIntent.putExtra("directoryId", directoryId);
                                     resultIntent.putExtra("isUpdated", true);
                                     setResult(RESULT_OK, resultIntent);
-                                    Toast.makeText(AddTodosActivity.this, "Todo saved successfully!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(AddTodosActivity.this, getString(R.string.todo_saved_successfully), Toast.LENGTH_SHORT).show();
                                     finish();
                                 }
                             });
@@ -231,7 +229,7 @@ public class AddTodosActivity extends BaseActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(AddTodosActivity.this, "Failed to load PDF data", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddTodosActivity.this, getString(R.string.failed_to_load_pdf_data), Toast.LENGTH_SHORT).show();
                     finish();
                 }
             });
@@ -247,7 +245,7 @@ public class AddTodosActivity extends BaseActivity {
                             resultIntent.putExtra("directoryId", directoryId);
                             resultIntent.putExtra("isUpdated", true);
                             setResult(RESULT_OK, resultIntent);
-                            Toast.makeText(this, "Todo saved successfully!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, getString(R.string.todo_saved_successfully), Toast.LENGTH_SHORT).show();
                             finish();
                         }
                     });
@@ -294,7 +292,7 @@ public class AddTodosActivity extends BaseActivity {
                 if (imageBitmap != null) {
                     capturedImage = imageBitmap;
                     setPictureVisibility();
-                    Toast.makeText(this, "Image captured.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.image_captured), Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -306,7 +304,7 @@ public class AddTodosActivity extends BaseActivity {
             try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    if (nameIndex >= 0) { // Sprawdzenie, czy indeks jest poprawny
+                    if (nameIndex >= 0) {
                         result = cursor.getString(nameIndex);
                     }
                 }
@@ -347,17 +345,17 @@ public class AddTodosActivity extends BaseActivity {
                             resultIntent.putExtra("directoryId", directoryId);
                             resultIntent.putExtra("isUpdated", true);
                             setResult(RESULT_OK, resultIntent);
-                            Toast.makeText(this, "Todo and PDF saved successfully!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, getString(R.string.todo_saved_successfully), Toast.LENGTH_SHORT).show();
                             finish();
                         })
                         .addOnFailureListener(e -> {
-                            Toast.makeText(this, "Failed to save PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, getString(R.string.failed_to_save_pdf) + e.getMessage(), Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
                             finish();
                         });
 
             } catch (Exception e) {
-                Toast.makeText(this, "Failed to save PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.failed_to_save_pdf) + e.getMessage(), Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
                 finish();
             }
@@ -401,7 +399,7 @@ public class AddTodosActivity extends BaseActivity {
         deleteButton.setOnClickListener(v -> {
             capturedImage = null;
             todoImage.setImageDrawable(null);
-            Toast.makeText(this, "Image removed.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.image_removed), Toast.LENGTH_SHORT).show();
             setPictureVisibility();
         });
     }

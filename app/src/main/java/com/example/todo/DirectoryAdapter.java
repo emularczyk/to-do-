@@ -99,14 +99,14 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.Dire
 
                             notifyItemChanged(position);
 
-                            Toast.makeText(context, "Directory updated!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, R.string.directory_updated, Toast.LENGTH_SHORT).show();
                         })
                         .addOnFailureListener(e -> {
-                            Toast.makeText(context, "Failed to update directory.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, R.string.failed_to_update_directory, Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
                         });
             } else {
-                Toast.makeText(context, "Name cannot be empty.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.name_cannot_be_empty, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -129,10 +129,10 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.Dire
                     .addOnSuccessListener(aVoid -> {
                         directories.remove(position);
                         notifyItemRemoved(position);
-                        Toast.makeText(context, "Directory deleted!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, R.string.directory_deleted, Toast.LENGTH_SHORT).show();
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(context, "Failed to delete directory.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, R.string.failed_to_delete_directory, Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                     });
         });

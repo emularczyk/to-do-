@@ -87,8 +87,8 @@ public class TodosActivity extends BaseActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("AddTodosActivity", "Failed to load todos: " + databaseError.getMessage());
-                Toast.makeText(TodosActivity.this, "Failed to load todos.", Toast.LENGTH_SHORT).show();
+                Log.e("AddTodosActivity", getString(R.string.failed_to_load_todos) + databaseError.getMessage());
+                Toast.makeText(TodosActivity.this, getString(R.string.failed_to_load_todos), Toast.LENGTH_SHORT).show();
             }
         });
     }

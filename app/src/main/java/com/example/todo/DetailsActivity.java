@@ -3,12 +3,14 @@ package com.example.todo;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,6 +29,9 @@ public class DetailsActivity extends BaseActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference todoRef;
     private Bitmap capturedImage = null;
+    private TextView pdfNameText;
+    private Button openPdfButton;
+    private String pdfUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +40,8 @@ public class DetailsActivity extends BaseActivity {
 
         inputTodo = findViewById(R.id.inputTodo);
         todoImageView = findViewById(R.id.todoImage);
+        pdfNameText = findViewById(R.id.pdfNameText);
+        openPdfButton = findViewById(R.id.openPdfButton);
         Button editButton = findViewById(R.id.editButton);
 
         mAuth = FirebaseAuth.getInstance();
@@ -64,6 +71,16 @@ public class DetailsActivity extends BaseActivity {
             editIntent.putExtra("directoryId", directoryID);
             startActivity(editIntent);
         });
+
+        openPdfButton.setOnClickListener(v -> {
+            if (pdfUrl != null) {
+                Intent intentPDF = new Intent(Intent.ACTION_VIEW);
+                intentPDF.setData(Uri.parse(pdfUrl));
+                startActivity(intentPDF);
+            } else {
+                Toast.makeText(this, "Brak załączonego pliku PDF", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadTodoDetails() {
@@ -72,6 +89,8 @@ public class DetailsActivity extends BaseActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String content = snapshot.child("content").getValue(String.class);
                 String encodedImage = snapshot.child("image").getValue(String.class);
+                String pdfName = snapshot.child("pdfName").getValue(String.class);
+                pdfUrl = snapshot.child("pdfUrl").getValue(String.class);
 
                 inputTodo.setText(content);
 
@@ -82,11 +101,19 @@ public class DetailsActivity extends BaseActivity {
                 } else {
                     todoImageView.setVisibility(View.GONE);
                 }
+
+                if (pdfName != null && pdfUrl != null) {
+                    pdfNameText.setText(pdfName);
+                    openPdfButton.setVisibility(View.VISIBLE);
+                } else {
+                    pdfNameText.setText(R.string.no_pdf_attached);
+                    openPdfButton.setVisibility(View.GONE);
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(DetailsActivity.this, "Failed to load todo details", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DetailsActivity.this, "Nie udało się załadować szczegółów notatki", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -104,7 +131,6 @@ public class DetailsActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

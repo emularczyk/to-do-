@@ -5,15 +5,19 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +32,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -52,6 +58,11 @@ public class AddTodosActivity extends BaseActivity {
     private ImageView todoImageView;
 
     private FloatingActionButton deleteButton;
+    private static final int PICK_PDF_REQUEST = 2;
+    private Uri pdfUri;
+    private TextView pdfNameText;
+    private String pdfFileName;
+    private StorageReference storageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +78,17 @@ public class AddTodosActivity extends BaseActivity {
 
         setupCameraButton();
         setupDeletePictureButton();
+
+        storageRef = FirebaseStorage.getInstance().getReference();
+        pdfNameText = findViewById(R.id.pdfNameText);
+        Button attachPdfButton = findViewById(R.id.attachPdfButton);
+
+        attachPdfButton.setOnClickListener(v -> {
+            Intent intentPDF = new Intent();
+            intentPDF.setType("application/pdf");
+            intentPDF.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intentPDF, "Select PDF"), PICK_PDF_REQUEST);
+        });
 
         mAuth = FirebaseAuth.getInstance();
         currentUserId = (mAuth.getCurrentUser() != null) ? mAuth.getCurrentUser().getUid() : "anonymous";
@@ -147,6 +169,8 @@ public class AddTodosActivity extends BaseActivity {
     }
 
     private void saveTodoWithOptionalImage() {
+        String todoId = todosRef.push().getKey();
+
         if (todoId == null) {
             todoId = UUID.randomUUID().toString();
         }
@@ -159,6 +183,10 @@ public class AddTodosActivity extends BaseActivity {
         } else {
             String encodedImage = encodeImage(capturedImage);
             todo = new Todo(todoId, todoText, encodedImage);
+        }
+
+        if (pdfUri != null) {
+            uploadPdfToFirebase(todoId);
         }
 
         todosRef.child(todoId)
@@ -201,6 +229,12 @@ public class AddTodosActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == PICK_PDF_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            pdfUri = data.getData();
+            pdfFileName = getFileName(pdfUri);
+            pdfNameText.setText(pdfFileName);
+        }
+
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             if (extras != null) {
@@ -212,6 +246,57 @@ public class AddTodosActivity extends BaseActivity {
                 }
             }
         }
+    }
+
+    private String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex >= 0) { // Sprawdzenie, czy indeks jest poprawny
+                        result = cursor.getString(nameIndex);
+                    }
+                }
+            }
+        }
+//        if (uri.getScheme().equals("content")) {
+//            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+//                if (cursor != null && cursor.moveToFirst()) {
+//                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+//                }
+//            }
+//        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
+    private void uploadPdfToFirebase(String todoId) {
+        if (pdfUri != null) {
+            StorageReference pdfRef = storageRef.child("pdfs/" + todoId + "/" + pdfFileName);
+
+            pdfRef.putFile(pdfUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        pdfRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String pdfUrl = uri.toString();
+                            updateTodoWithPdfUrl(todoId, pdfUrl);
+                        });
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, "Failed to upload PDF", Toast.LENGTH_SHORT).show()
+                    );
+        }
+    }
+
+    private void updateTodoWithPdfUrl(String todoId, String pdfUrl) {
+        todosRef.child(todoId).child("pdfUrl").setValue(pdfUrl);
+        todosRef.child(todoId).child("pdfName").setValue(pdfFileName);
     }
 
     private void setupCameraButton() {

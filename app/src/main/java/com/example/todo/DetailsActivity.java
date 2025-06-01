@@ -36,6 +36,7 @@ public class DetailsActivity extends BaseActivity {
     private Bitmap capturedImage = null;
     private TextView pdfNameText;
     private Button openPdfButton;
+    private Button shareBluetoothButton;
     private String pdfUrl;
 
     @Override
@@ -48,6 +49,7 @@ public class DetailsActivity extends BaseActivity {
         pdfNameText = findViewById(R.id.pdfNameText);
         openPdfButton = findViewById(R.id.openPdfButton);
         Button editButton = findViewById(R.id.editButton);
+        shareBluetoothButton = findViewById(R.id.shareBluetoothButton);
 
         mAuth = FirebaseAuth.getInstance();
         currentUserId = (mAuth.getCurrentUser() != null) ? mAuth.getCurrentUser().getUid() : "anonymous";
@@ -74,7 +76,7 @@ public class DetailsActivity extends BaseActivity {
             Intent editIntent = new Intent(this, AddTodosActivity.class);
             editIntent.putExtra("todoId", todoID);
             editIntent.putExtra("directoryId", directoryID);
-            startActivityForResult(editIntent, 100); // Użyj startActivityForResult
+            startActivityForResult(editIntent, 100);
         });
 
         openPdfButton.setOnClickListener(v -> {
@@ -108,6 +110,7 @@ public class DetailsActivity extends BaseActivity {
             }
         });
 
+        shareBluetoothButton.setOnClickListener(v -> shareNoteViaBluetooth());
     }
 
     private void loadTodoDetails() {
@@ -159,17 +162,20 @@ public class DetailsActivity extends BaseActivity {
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100) {
-            // Zawsze wracaj do listy notatek po edycji
-            Intent intent = new Intent(this, TodosActivity.class);
-            intent.putExtra("directoryId", directoryID);
-            startActivity(intent);
-            finish();
+    private void shareNoteViaBluetooth() {
+        String noteContent = inputTodo.getText().toString();
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, noteContent);
+
+        try {
+            startActivity(Intent.createChooser(intent, "Udostępnij notatkę"));
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "Nie znaleziono aplikacji do udostępniania", Toast.LENGTH_SHORT).show();
         }
     }
+
     private Bitmap decodeImage(String encodedImage) {
         byte[] decodedBytes = Base64.decode(encodedImage, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
@@ -182,6 +188,17 @@ public class DetailsActivity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100) {
+            Intent intent = new Intent(this, TodosActivity.class);
+            intent.putExtra("directoryId", directoryID);
+            startActivity(intent);
+            finish();
+        }
     }
 
     @Override

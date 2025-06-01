@@ -59,4 +59,5 @@
     <string name="no_pdf_attached">No PDF attached</string>
     <string name="attach_pdf">Attach PDF</string>
     <string name="open_pdf">Open PDF</string>
+    <string name="share_bluetooth">Bluetooth</string>
 </resources>
